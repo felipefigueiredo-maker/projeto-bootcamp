@@ -1,19 +1,147 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu site</title>
-<style>
-    body{
-        background-color: rgb(65, 140, 226);
-    }
-</style>
+    <title>Calendário Simples</title>
+    
+    <style>
+        /* --- CSS para Estilização --- */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Alinha no topo ou no centro, dependendo do seu gosto */
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+            padding-top: 50px;
+        }
+
+        #calendario {
+            width: 350px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .header button {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #007bff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .header button:hover {
+            background-color: #e9ecef;
+        }
+
+        #month-year {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+        }
+        
+        .weekdays div {
+            text-align: center;
+        }
+
+        #days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+
+        #days div {
+            padding: 10px 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-radius: 5px;
+            /* Garante que os dias fiquem quadrados/uniformes */
+            aspect-ratio: 1 / 1; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #days div:hover {
+            background-color: #f0f0f0;
+        }
+
+        .empty {
+            visibility: hidden;
+            pointer-events: none; /* Impede que o mouse interaja com células vazias */
+        }
+
+        /* Destaque para o dia de hoje */
+        .today {
+            background-color: #007bff !important;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-  <h1>Olá, pessoal</h1>
-  <p>Este é o meu site</p>
-  <h2>Este é um h2</h2> 
-  <h3>Este é um h3</h3> 
-</body>
-</html>
+
+    <div id="calendario">
+        <div class="header">
+            <button id="prev-month">&lt;</button>
+            <div id="month-year">Mês e Ano</div>
+            <button id="next-month">&gt;</button>
+        </div>
+        
+        <div class="weekdays">
+            <div>Dom</div>
+            <div>Seg</div>
+            <div>Ter</div>
+            <div>Qua</div>
+            <div>Qui</div>
+            <div>Sex</div>
+            <div>Sáb</div>
+        </div>
+
+        <div id="days">
+            </div>
+    </div>
+
+    <script>
+        // --- JAVASCRIPT para Lógica Dinâmica ---
+
+        const monthYearEl = document.getElementById('month-year');
+        const daysContainer = document.getElementById('days');
+        const prevMonthBtn = document.getElementById('prev-month');
+        const nextMonthBtn = document.getElementById('next-month');
+
+        let dataAtual = new Date();
+        let mesAtual = dataAtual.getMonth();
+        let anoAtual = dataAtual.getFullYear();
+        let diaDeHoje = dataAtual.getDate();
+        let mesDeHoje = dataAtual.getMonth(); // Mês de hoje para comparação
+        let anoDeHoje = dataAtual.getFullYear(); // Ano de hoje para comparação
+
+        const nomesDosMeses = [
+            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'De
