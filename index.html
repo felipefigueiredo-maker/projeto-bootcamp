@@ -3,145 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendário Simples</title>
+    <title>Calendário Anual Completo</title>
     
     <style>
         /* --- CSS para Estilização --- */
         body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start; /* Alinha no topo ou no centro, dependendo do seu gosto */
-            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            background-color: #f4f4f9;
-            padding-top: 50px;
-        }
-
-        #calendario {
-            width: 350px;
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 20px;
+            background-color: #f0f2f5;
+            color: #333;
             text-align: center;
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        #controls {
             margin-bottom: 20px;
-            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
         }
 
-        .header button {
-            background: none;
-            border: none;
-            font-size: 1.5em;
-            cursor: pointer;
-            color: #007bff;
-            padding: 5px 10px;
+        #year-select {
+            padding: 8px 12px;
             border-radius: 5px;
-            transition: background-color 0.3s;
+            border: 1px solid #ccc;
+            font-size: 1em;
+            cursor: pointer;
         }
 
-        .header button:hover {
-            background-color: #e9ecef;
+        #calendario-anual {
+            display: grid;
+            /* Cria 3 colunas de calendário, mas pode ser ajustado (ex: repeat(4, 1fr) para 4 colunas) */
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        #month-year {
-            font-size: 1.2em;
-            font-weight: bold;
+        .month {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .month h3 {
+            background-color: #007bff;
+            color: white;
+            margin: -10px -10px 10px -10px;
+            padding: 10px 0;
+            border-radius: 8px 8px 0 0;
+            font-size: 1.1em;
         }
 
         .weekdays {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             font-weight: bold;
+            font-size: 0.8em;
             color: #555;
-            margin-bottom: 10px;
-            border-bottom: 2px solid #ddd;
-            padding-bottom: 5px;
+            margin-bottom: 5px;
         }
-        
+
         .weekdays div {
             text-align: center;
         }
 
-        #days {
+        .days-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
+            font-size: 0.9em;
         }
 
-        #days div {
-            padding: 10px 5px;
+        .day-cell {
+            padding: 5px 0;
             text-align: center;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            border-radius: 5px;
-            /* Garante que os dias fiquem quadrados/uniformes */
-            aspect-ratio: 1 / 1; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #days div:hover {
-            background-color: #f0f0f0;
+            border: 1px solid transparent;
         }
 
         .empty {
             visibility: hidden;
-            pointer-events: none; /* Impede que o mouse interaja com células vazias */
+        }
+        
+        /* Destaque para o domingo */
+        .days-grid div:nth-child(7n+1) { /* O primeiro dia de cada linha (se a semana começar no Dom) */
+            color: #dc3545; /* Vermelho */
         }
 
         /* Destaque para o dia de hoje */
         .today {
-            background-color: #007bff !important;
-            color: white;
+            background-color: #ffc107;
+            color: #333;
             font-weight: bold;
+            border-radius: 50%;
+            cursor: default;
         }
     </style>
 </head>
 <body>
 
-    <div id="calendario">
-        <div class="header">
-            <button id="prev-month">&lt;</button>
-            <div id="month-year">Mês e Ano</div>
-            <button id="next-month">&gt;</button>
-        </div>
-        
-        <div class="weekdays">
-            <div>Dom</div>
-            <div>Seg</div>
-            <div>Ter</div>
-            <div>Qua</div>
-            <div>Qui</div>
-            <div>Sex</div>
-            <div>Sáb</div>
-        </div>
+    <h1>Calendário Anual Completo</h1>
 
-        <div id="days">
-            </div>
+    <div id="controls">
+        <label for="year-select">Selecione o Ano:</label>
+        <select id="year-select"></select>
     </div>
+
+    <div id="calendario-anual">
+        </div>
 
     <script>
         // --- JAVASCRIPT para Lógica Dinâmica ---
 
-        const monthYearEl = document.getElementById('month-year');
-        const daysContainer = document.getElementById('days');
-        const prevMonthBtn = document.getElementById('prev-month');
-        const nextMonthBtn = document.getElementById('next-month');
-
-        let dataAtual = new Date();
-        let mesAtual = dataAtual.getMonth();
-        let anoAtual = dataAtual.getFullYear();
-        let diaDeHoje = dataAtual.getDate();
-        let mesDeHoje = dataAtual.getMonth(); // Mês de hoje para comparação
-        let anoDeHoje = dataAtual.getFullYear(); // Ano de hoje para comparação
+        const calendarioAnualEl = document.getElementById('calendario-anual');
+        const yearSelectEl = document.getElementById('year-select');
 
         const nomesDosMeses = [
             'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'De
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+        ];
+        
+        const nomesDosDias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+        const dataDeHoje = new Date();
+        const anoAtual = dataDeHoje.getFullYear();
+        const mesDeHoje = dataDeHoje.getMonth();
+        const diaDeHoje = dataDeHoje.getDate();
+        
+        // --- 1. Funções de Suporte ---
+
+        // Preenche o campo de seleção de ano
+        function popularAnos() {
+            const startYear = 1970; // Ano inicial
+            const endYear = anoAtual + 10; // 10 anos à frente
+            
+            for (let year = endYear; year >= startYear; year--) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                if (year === anoAtual) {
+                    option.selected = true; // Seleciona o ano atual por padrão
+                }
+                yearSelectEl.appendChild(option);
+            }
+        }
+
+        // Renderiza um mês específico (o núcleo da lógica)
+        function renderMonth(year, monthIndex) {
+            const monthName = nomesDosMeses[monthIndex];
+            
+            // Cria o container do mês
+            const monthEl = document.createElement('div');
+            monthEl.classList.add('month');
+            monthEl.innerHTML = `<h3>${monthName} ${year}</h3>`;
+
+            // Cria o cabeçalho dos dias da semana
+            const weekdaysEl = document.createElement('div');
+            weekdaysEl.classList.add('weekdays');
+            nomesDosDias.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.textContent = day;
+                weekdaysEl.appendChild(dayHeader);
+            });
+            monthEl.appendChild(weekdaysEl);
+
+            // Cria a grade de dias
+            const daysGridEl = document.createElement('div');
+            daysGridEl.classList.add('days-grid');
+            
+            const primeiroDiaDoMes = new Date(year, monthIndex, 1);
+            const ultimoDiaDoMes = new Date(year, monthIndex + 1, 0).getDate();
+            const diaDeInicio = primeiroDiaDoMes.getDay(); // 0 (Dom) a 6 (Sáb)
+
+            // Células vazias (preenchimento inicial)
+            for (let i = 0; i < diaDeInicio; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.classList.add('day-cell', 'empty');
+                daysGridEl.appendChild(emptyCell);
+            }
+
+            // Células com os dias
+            for (let dia = 1; dia <= ultimoDiaDoMes; dia++) {
+                const dayCell = document.createElement('div');
+                dayCell.classList.add('day-cell');
+                dayCell.textContent = dia;
+
+                // Marca o dia atual (Apenas se o ano e mês selecionados forem os de hoje)
+                const isToday = (dia === diaDeHoje && monthIndex === mesDeHoje && year === anoAtual);
+                if (isToday) {
+                    dayCell.classList.add('today');
+                }
+                
+                daysGridEl.appendChild(dayCell);
+            }
+
+            monthEl.appendChild(daysGridEl);
+            return monthEl;
+        }
+        
+        // --- 2. Função de Renderização Principal do Ano ---
+        
+        function renderizarAnoInteiro(year) {
+            calendarioAnualEl.innerHTML = ''; // Limpa o calendário anterior
+            
+            for (let i = 0; i < 12; i++) {
+                const monthCalendar = renderMonth(year, i);
+                calendarioAnualEl.appendChild(monthCalendar);
+            }
+        }
+
+        // --- 3. Inicialização e Eventos ---
+
+        // 3.1. Popula o seletor de ano e renderiza o ano atual
+        popularAnos();
+        renderizarAnoInteiro(anoAtual);
+
+        // 3.2. Adiciona o listener para mudança de ano
+        yearSelectEl.addEventListener('change', (event) => {
+            const selectedYear = parseInt(event.target.value);
+            renderizarAnoInteiro(selectedYear);
+        });
+
+    </script>
+</body>
+</html>
