@@ -4,4 +4,4 @@ Sou estudante de Engenharia de Software na CEUB
 
 Email de contato felipelipefigueiredo1234@gmail.com
 
-felipe-figueiredo-1651b12b9
+www.linkedin.com/in/felipe-figueiredo-1651b12b9
